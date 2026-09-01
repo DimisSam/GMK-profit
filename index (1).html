@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMK Profit Plan</title>
+    <link rel="stylesheet" href="style.css">
+
+    <meta name="theme-color" content="#DDBF35">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #eee;
+            margin: 0;
+            padding: 0;
+        }
+
+        #splash {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        #splash img {
+            max-width: 220px;
+        }
+
+        #mainApp, #form2 {
+            padding: 16px;
+        }
+
+        h2, h4 {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        input[type="number"],
+        input[type="date"] {
+            width: 100%;
+            padding: 6px;
+            margin-top: 4px;
+            box-sizing: border-box;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #222;
+            color: #fff;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 12px;
+            background: #DDBF35;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+        }
+        button:active {
+            opacity: 0.85;
+        }
+
+        #days .day-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        #days select {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #222;
+            color: #fff;
+        }
+
+        #results, #futureResult {
+            margin-top: 16px;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Form 2 styles */
+        #form2 table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 12px;
+        }
+        #form2 th, #form2 td {
+            border: 1px solid #ccc;
+            padding: 4px 3px;
+            text-align: center;
+            overflow: hidden;
+            word-break: break-word;
+        }
+        #form2 th {
+            background: #f0f0f0;
+            font-size: 11px;
+            color: #000;
+        }
+        #profitTable col.col-num    { width: 4%; }
+        #profitTable col.col-plays  { width: 10%; }
+        #profitTable col.col-date   { width: 13%; }
+        #profitTable col.col-amount { width: 12%; }
+        #profitTable col.col-w      { width: 11%; }
+        #profitTable col.col-net    { width: 10%; }
+        #profitTable col.col-days   { width: 7%; }
+
+        #profitTable input[type="number"] {
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 11px;
+            padding: 2px;
+        }
+        #profitTable input[type="date"] {
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 10px;
+            padding: 2px;
+        }
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+</head>
+
+<body onload="startApp()">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('Service Worker registered'))
+      .catch(err => console.log('SW error:', err));
+  }
+</script>
+
+<!-- SPLASH -->
+<div id="splash">
+    <img src="gmk_logo.png" alt="GMK Logo">
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;">
+
+<h2>GMK Profit Plan</h2>
+
+<div class="container">
+
+    <h2>Υπολογισμός Πονταρισμάτων</h2>
+
+<label for="startAmount">Αρχικό Ποσό ($):</label>
+<input type="number" id="startAmount" readonly>
+
+<label for="profitRate">Ποσοστό Κέρδους (%):</label>
+<input type="number" id="profitRate" value="64" required min="0" max="100" step="0.01">
+
+<label for="startDate">Ημερομηνία Έναρξης:</label>
+<input type="date" id="startDate" value="2026-05-08" required min="2020-01-01" max="2030-12-31">
+
+<label for="inDeposit">Αρχική Κατάθεση ($):</label>
+<input type="number" id="inDeposit" value="800" required>
+
+<label for="exDeposit">Επιπλέον Κατάθεση ($):</label>
+<input type="number" id="exDeposit" value="800" required>
+
+<label for="bonus">Bonus ($):</label>
+<input type="number" id="bonus" value="8" required>
+
+<label for="bonusSignal">Bonus Σήμα:</label>
+<input type="number" id="bonusSignal" value="3" required>
+
+<label for="targetProfit">Στόχος Κέρδους σε 30 μέρες (€):</label>
+<input type="number" id="targetProfit" placeholder="100">
+
+<label for="wAmount">Ποσό για Ανάληψη ($):</label>
+<input type="number" id="wAmount" readonly>
+
+<label for="rateUSDC">Ισοτιμία USDC → EUR (Revolut):</label>
+<input type="number" id="rateUSDC" step="0.0001" value="0.85">    
+
+<label for="calcUntil">Υπολογισμός μέχρι ημερομηνία:</label>
+<input type="date" id="calcUntil">
+
+<button onclick="calculateProfitUntil()">Υπολογισμός Κέρδους</button>
+<div id="futureResult"></div>
+
+<h4>Χτυπήματα ανά ημέρα:</h4>
+<div id="days">
+  <div class="day-row">
+    Δευτέρα:
+    <select id="day1">
+      <option value="0">0</option>
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </div>
+  <div class="day-row">
+    Τρίτη:
+    <select id="day2">
+      <option value="0">0</option>
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </div>
+  <div class="day-row">
+    Τετάρτη:
+    <select id="day3">
+      <option value="0">0</option>
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </div>
+  <div class="day-row">
+    Πέμπτη:
+    <select id="day4">
+      <option value="0">0</option>
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </div>
+  <div class="day-row">
+    Παρασκευή:
+    <select id="day5">
+      <option value="0">0</option>
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </div>
+  <div class="day-row">
+    Σάββατο:
+    <select id="day6">
+      <option value="0">0</option>
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </div>
+  <div class="day-row">
+    Κυριακή:
+    <select id="day7">
+      <option value="0">0</option>
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </div>
+</div><br>
+
+<button onclick="generateTable()">Υπολογισμός</button>
+
+<br><br>
+
+<button onclick="openForm2()">Μακροχρόνιο Πλάνο</button>
+
+</div>
+
+<div id="results"></div>
+
+<footer>© GMK PROFIT PLAN — Δημήτρης 2026</footer>
+
+</div> <!-- ΤΕΛΟΣ mainApp -->
+
+<!-- FORM 2 -->
+<div id="form2" style="display:none; padding: 10px; box-sizing: border-box; width: 100%;">
+    <h2>Μακροχρόνιο Πλάνο</h2>
+
+<table>
+    <tr>
+        <th>Ποσοστό Κέρδους (%)</th>
+        <td><span id="profitRate_display"></span></td>
+        <th>Ισοτιμία USDC → EUR</th>
+        <td><span id="rateUSDC_display"></span></td>
+    </tr>
+</table>
+
+<div class="table-scroll">
+<table id="profitTable">
+    <colgroup>
+        <col class="col-num">
+        <col class="col-plays">
+        <col class="col-date">
+        <col class="col-date">
+        <col class="col-amount">
+        <col class="col-amount">
+        <col class="col-w">
+        <col class="col-net">
+        <col class="col-amount">
+        <col class="col-days">
+    </colgroup>
+    <tr>
+        <th>#</th>
+        <th>Παίξ/μέρα</th>
+        <th>Αρχή</th>
+        <th>Τέλος</th>
+        <th>Αρχικό</th>
+        <th>Τελικό</th>
+        <th>Ανάληψη</th>
+        <th>Καθαρό€</th>
+        <th>Υπόλοιπο</th>
+        <th>Μέρες</th>
+    </tr>
+
+    <!-- ROW 1 -->
+    <tr>
+        <td>1</td>
+        <td><input id="p1" type="number" value="2" min="1"></td>
+        <td><input id="a1" type="date"></td>
+        <td><input id="b1" type="date"></td>
+        <td><input id="c1" type="number" step="0.01"></td>
+        <td id="d1"></td>
+        <td><input id="w1" type="number" step="0.01"></td>
+        <td id="net1"></td>
+        <td id="r1"></td>
+        <td id="days1"></td>
+    </tr>
+
+    <!-- ROWS 2–10 -->
+    <tbody id="rows"></tbody>
+</table>
+</div>
+
+<br>
+<button onclick="run10()" style="width:100%; padding: 12px; margin-bottom: 8px;">Υπολογισμός</button>
+<button onclick="backToMain()" style="width:100%; padding: 12px;">Πίσω</button>
+
+</div> <!-- ΤΕΛΟΣ form2 -->
+
+<script>
+// ---------- UTILS ----------
+function $(id) { return document.getElementById(id); }
+
+function startApp() {
+    setTimeout(() => {
+        $('splash').style.display = 'none';
+        $('mainApp').style.display = 'block';
+    }, 1200);
+
+    updateStartAmount();
+}
+
+function updateStartAmount() {
+    const inDep = parseFloat($('inDeposit').value) || 0;
+    const bonusVal = parseFloat($('bonus').value) || 0;
+    $('startAmount').value = (inDep + bonusVal).toFixed(2);
+}
+
+['inDeposit','bonus'].forEach(id => {
+    $(id).addEventListener('input', updateStartAmount);
+});
+
+// ---------- MAIN CALCULATIONS ----------
+
+function calculateProfitUntil() {
+    const profitRate = parseFloat($('profitRate').value) || 0;
+    const startDateStr = $('startDate').value;
+    const calcUntilStr = $('calcUntil').value;
+    const inDeposit = parseFloat($('inDeposit').value) || 0;
+    const exDeposit = parseFloat($('exDeposit').value) || 0;
+    const bonus = parseFloat($('bonus').value) || 0;
+    const bonusSignal = parseFloat($('bonusSignal').value) || 0;
+    const rateUSDC = parseFloat($('rateUSDC').value) || 0.85;
+    const targetProfit = parseFloat($('targetProfit').value) || 0;
+
+    if (!startDateStr || !calcUntilStr) {
+        $('futureResult').textContent = 'Δώσε ημερομηνία έναρξης και ημερομηνία μέχρι τον υπολογισμό.';
+        return;
+    }
+
+    const start = new Date(startDateStr);
+    const end = new Date(calcUntilStr);
+    if (end < start) {
+        $('futureResult').textContent = 'Η ημερομηνία “μέχρι” πρέπει να είναι μετά την ημερομηνία έναρξης.';
+        return;
+    }
+
+    const hits = [
+        parseInt($('day1').value, 10) || 0,
+        parseInt($('day2').value, 10) || 0,
+        parseInt($('day3').value, 10) || 0,
+        parseInt($('day4').value, 10) || 0,
+        parseInt($('day5').value, 10) || 0,
+        parseInt($('day6').value, 10) || 0,
+        parseInt($('day7').value, 10) || 0
+    ];
+
+    let balance = inDeposit + bonus;
+    let totalProfitUSD = 0;
+    let dayCounter = 0;
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    for (let d = new Date(start); d <= end; d = new Date(d.getTime() + oneDay)) {
+        const weekday = d.getDay();
+        let idx = weekday === 0 ? 6 : weekday - 1;
+        const dailyHits = hits[idx];
+
+        if (dailyHits > 0) {
+            const factor = 1 + profitRate / 100;
+            const newBalance = balance * Math.pow(factor, dailyHits);
+            const profitToday = newBalance - balance;
+            totalProfitUSD += profitToday;
+            balance = newBalance;
+        }
+
+        dayCounter++;
+    }
+
+    const finalBalanceEUR = balance * rateUSDC;
+
+    $('wAmount').value = balance.toFixed(2);
+
+    let text = `Ημέρες: ${dayCounter}
+`;
+    text += `Τελικό υπόλοιπο (USD): ${balance.toFixed(2)} $
+`;
+    text += `Τελικό υπόλοιπο (EUR): ${finalBalanceEUR.toFixed(2)} €
+`;
+    text += `Συνολικό κέρδος (USD): ${totalProfitUSD.toFixed(2)} $
+`;
+    text += `Συνολικό κέρδος (EUR): ${(totalProfitUSD * rateUSDC).toFixed(2)} €
+`;
+    text += `
+Σημείωση: Η κράτηση 5% υπολογίζεται μόνο στο ποσό ανάληψης.
+`;
+
+    if (targetProfit > 0) {
+        if (totalProfitUSD * rateUSDC >= targetProfit) {
+            text += `
+Στόχος ${targetProfit} € ΕΠΙΤΕΥΧΘΗΚΕ.
+`;
+        } else {
+            text += `
+Στόχος ${targetProfit} € ΔΕΝ επιτεύχθηκε (έλλειψη: ${(targetProfit - totalProfitUSD * rateUSDC).toFixed(2)} €).
+`;
+        }
+    }
+
+    $('futureResult').textContent = text;
+}
+
+function generateTable() {
+    const profitRate = parseFloat($('profitRate').value) || 0;
+    const startDateStr = $('startDate').value;
+    const inDeposit = parseFloat($('inDeposit').value) || 0;
+    const exDeposit = parseFloat($('exDeposit').value) || 0;
+    const bonus = parseFloat($('bonus').value) || 0;
+    const rateUSDC = parseFloat($('rateUSDC').value) || 0.85;
+
+    if (!startDateStr) {
+        $('results').textContent = 'Δώσε ημερομηνία έναρξης.';
+        return;
+    }
+
+    const hits = [
+        parseInt($('day1').value, 10) || 0,
+        parseInt($('day2').value, 10) || 0,
+        parseInt($('day3').value, 10) || 0,
+        parseInt($('day4').value, 10) || 0,
+        parseInt($('day5').value, 10) || 0,
+        parseInt($('day6').value, 10) || 0,
+        parseInt($('day7').value, 10) || 0
+    ];
+
+    let balance = inDeposit + bonus;
+    const start = new Date(startDateStr);
+    const oneDay = 24 * 60 * 60 * 1000;
+    let html = '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+    html += '<tr>' +
+            '<th style="border:1px solid #ccc;padding:4px;">#</th>' +
+            '<th style="border:1px solid #ccc;padding:4px;">Ημερομηνία</th>' +
+            '<th style="border:1px solid #ccc;padding:4px;">Χτυπήματα</th>' +
+            '<th style="border:1px solid #ccc;padding:4px;">Υπόλοιπο πριν (USD)</th>' +
+            '<th style="border:1px solid #ccc;padding:4px;">Υπόλοιπο μετά (USD)</th>' +
+            '<th style="border:1px solid #ccc;padding:4px;">Κέρδος ημέρας (USD)</th>' +
+            '<th style="border:1px solid #ccc;padding:4px;">Κέρδος ημέρας (EUR)</th>' +
+            '</tr>';
+
+    let dayCounter = 0;
+    let totalProfitUSD = 0;
+
+    for (let i = 0; i < 30; i++) {
+        const d = new Date(start.getTime() + i * oneDay);
+        const weekday = d.getDay();
+        let idx = weekday === 0 ? 6 : weekday - 1;
+        const dailyHits = hits[idx];
+
+        if (dailyHits > 0) {
+            const factor = 1 + profitRate / 100;
+            const before = balance;
+            const after = balance * Math.pow(factor, dailyHits);
+            const profitDayUSD = after - before;
+            const profitDayEUR = profitDayUSD * rateUSDC;
+            totalProfitUSD += profitDayUSD;
+            balance = after;
+
+            const dateStr = d.toLocaleDateString('el-GR');
+            html += '<tr>' +
+                    `<td style="border:1px solid #ccc;padding:4px;text-align:center;">${dayCounter + 1}</td>` +
+                    `<td style="border:1px solid #ccc;padding:4px;text-align:center;">${dateStr}</td>` +
+                    `<td style="border:1px solid #ccc;padding:4px;text-align:center;">${dailyHits}</td>` +
+                    `<td style="border:1px solid #ccc;padding:4px;text-align:right;">${before.toFixed(2)}</td>` +
+                    `<td style="border:1px solid #ccc;padding:4px;text-align:right;">${after.toFixed(2)}</td>` +
+                    `<td style="border:1px solid #ccc;padding:4px;text-align:right;">${profitDayUSD.toFixed(2)}</td>` +
+                    `<td style="border:1px solid #ccc;padding:4px;text-align:right;">${profitDayEUR.toFixed(2)}</td>` +
+                    '</tr>';
+
+            dayCounter++;
+        }
+    }
+
+    html += '</table>';
+    html += `<p>Συνολικές ημέρες με παίξιμο: ${dayCounter}<br>` +
+            `Συνολικό κέρδος (USD): ${totalProfitUSD.toFixed(2)} $<br>` +
+            `Συνολικό κέρδος (EUR): ${(totalProfitUSD * rateUSDC).toFixed(2)} €</p>`;
+
+    $('results').innerHTML = html;
+}
+
+// ---------- FORM 2 (Μακροχρόνιο Πλάνο) ----------
+
+function openForm2() {
+    $('mainApp').style.display = 'none';
+    $('form2').style.display = 'block';
+
+    $('profitRate_display').textContent = ($('profitRate').value || 0) + ' %';
+    $('rateUSDC_display').textContent = $('rateUSDC').value || 0.85;
+
+    const rowsContainer = $('rows');
+    rowsContainer.innerHTML = '';
+    for (let i = 2; i <= 10; i++) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${i}</td>
+            <td><input id="p${i}" type="number" value="2" min="1"></td>
+            <td><input id="a${i}" type="date"></td>
+            <td><input id="b${i}" type="date"></td>
+            <td><input id="c${i}" type="number" step="0.01"></td>
+            <td id="d${i}"></td>
+            <td><input id="w${i}" type="number" step="0.01"></td>
+            <td id="net${i}"></td>
+            <td id="r${i}"></td>
+            <td id="days${i}"></td>
+        `;
+        rowsContainer.appendChild(tr);
+    }
+}
+
+function backToMain() {
+    $('form2').style.display = 'none';
+    $('mainApp').style.display = 'block';
+}
+
+function run10() {
+    const profitRate = parseFloat($('profitRate').value) || 0;
+    const rateUSDC = parseFloat($('rateUSDC').value) || 0.85;
+
+    processRow(1, profitRate, rateUSDC);
+
+    for (let i = 2; i <= 10; i++) {
+        const prevRemainingId = 'r' + (i - 1);
+        const cInput = $('c' + i);
+        if (!cInput.value) {
+            const prevRemaining = parseFloat($(prevRemainingId).textContent) || 0;
+            cInput.value = prevRemaining.toFixed(2);
+        }
+        processRow(i, profitRate, rateUSDC);
+    }
+}
+
+function processRow(row, profitRate, rateUSDC) {
+    const playsPerDay = parseFloat($('p' + row).value) || 1;
+    const startStr = $('a' + row).value;
+    const endStr = $('b' + row).value;
+    const startAmount = parseFloat($('c' + row).value) || 0;
+    const withdrawal = parseFloat($('w' + row).value) || 0;
+
+    if (!startStr || !endStr) {
+        $('d' + row).textContent = '';
+        $('net' + row).textContent = '';
+        $('r' + row).textContent = '';
+        $('days' + row).textContent = '';
+        return;
+    }
+
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    if (end < start) {
+        $('d' + row).textContent = 'Λάθος ημερομηνίες';
+        $('net' + row).textContent = '';
+        $('r' + row).textContent = '';
+        $('days' + row).textContent = '';
+        return;
+    }
+
+    const oneDay = 24 * 60 * 60 * 1000;
+    let balance = startAmount;
+    let daysCount = 0;
+
+    for (let d = new Date(start); d <= end; d = new Date(d.getTime() + oneDay)) {
+        const factor = 1 + profitRate / 100;
+        const newBalance = balance * Math.pow(factor, playsPerDay);
+        balance = newBalance;
+        daysCount++;
+    }
+
+    const finalUSD = balance;
+    const grossProfitUSD = finalUSD - startAmount;
+
+    // Κράτηση 5% μόνο στο ποσό ανάληψης
+    const feeRate = 0.05;
+    const feeOnWithdrawalUSD = withdrawal * feeRate;
+    const netProfitAfterFeeUSD = grossProfitUSD - feeOnWithdrawalUSD;
+    const netEUR = netProfitAfterFeeUSD * rateUSDC;
+
+    const remainingAfterWithdrawal = finalUSD - withdrawal;
+
+    $('d' + row
