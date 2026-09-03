@@ -1,7 +1,7 @@
 {
   "name": "GMK Profit Plan",
   "short_name": "GMK Plan",
-  "description": "GMK Profit Plan Calculator",
+  "description": "GMK Profit Calculator",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#DDBF35",
