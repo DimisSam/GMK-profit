@@ -1,7 +1,7 @@
 {
-  "name": "FXO Profit Plan",
-  "short_name": "FXO Plan",
-  "description": "FXO Profit Plan Calculator",
+  "name": "GMK Profit Plan",
+  "short_name": "GMK Plan",
+  "description": "GMK Profit Plan Calculator",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#DDBF35",
