@@ -6,7 +6,7 @@ const ASSETS = [
   './style.css',
   './script.js',
   './manifest.json',
-  './gm_logo.png',
+  './gmk_logo.png',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
