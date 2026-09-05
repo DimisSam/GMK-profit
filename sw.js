@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gmk-profit-plan-v2';
+const CACHE_NAME = 'GMK Profit Plan';
 
 const ASSETS = [
   './',
