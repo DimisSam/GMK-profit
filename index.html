@@ -239,7 +239,12 @@ function generateTable(){
 
         if(h>0){
             const before=balance;
-            const after=balance*Math.pow(1+rate/100,h);
+            let after = balance;
+for (let j = 0; j < dailyHits; j++) {
+    const stake = after * 0.01;
+    const profit = stake * (profitRate / 100);
+    after += profit;
+}
             const p=after-before;
             total+=p;
             balance=after;
@@ -334,8 +339,12 @@ function processRow(row,rate,rateUSDC){
     let days=0;
 
     for(let d=new Date(start); d<=end; d=new Date(d.getTime()+86400000)){
-        balance=balance*Math.pow(1+rate/100,plays);
-        days++;
+        for (let i = 0; i < playsPerDay; i++) {
+    const stake = balance * 0.01;
+    const profit = stake * (profitRate / 100);
+    balance += profit;
+}
+
     }
 
     const finalUSD=balance;
