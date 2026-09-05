@@ -55,13 +55,13 @@
 <input id="profitRate" type="number" value="88" step="0.01">
 
 <label>Ημερομηνία Έναρξης:</label>
-<input id="startDate" type="date" value="2026-05-08">
+<input id="startDate" type="date" value="2026-09-05">
 
 <label>Αρχική Κατάθεση ($):</label>
-<input id="inDeposit" type="number" value="800">
+<input id="inDeposit" type="number" value="300">
 
 <label>Bonus ($):</label>
-<input id="bonus" type="number" value="8">
+<input id="bonus" type="number" value="0">
 
 <label>Ισοτιμία USDC → EUR:</label>
 <input id="rateUSDC" type="number" value="0.85" step="0.0001">
