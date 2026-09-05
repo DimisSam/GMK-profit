@@ -74,7 +74,7 @@ function updateWAmount() {
     const target = parseFloat(document.getElementById("targetProfit").value) || 0;
     const rate = parseFloat(document.getElementById("rateUSDC").value) || 0;
     if (rate > 0) {
-        document.getElementById("wAmount").value = (target / (0.95 * rate)).toFixed(2);  // ΑΛΛΑΓΗ: 0.88 → 0.95
+        document.getElementById("wAmount").value = (target / (0.95 * rate)).toFixed(2); 
     }
     saveValues();
 }
@@ -158,7 +158,7 @@ function generateTable() {
     const ποσόΜετάΑνάληψη = τρέχονΠοσό - ποσόΑνάληψης;
     const απαραίτητοΥπόλοιπο = targetLimit - ποσόΜετάΑνάληψη;
     const τελικόΚέρδος = τρέχονΠοσό - (αρχική + επιπλέον + μπόνους);
-    const κρατήσεις = τελικόΚέρδος * 0.05;  // ΑΛΛΑΓΗ: 0.12 → 0.05
+    const κρατήσεις = τελικόΚέρδος * 0.05;
     const καθαρόΚέρδος = τελικόΚέρδος - κρατήσεις;
     const καθαρόΜετά = ποσόΜετάΑνάληψη - κρατήσεις;
 
@@ -171,7 +171,7 @@ function generateTable() {
         <strong>Υπόλοιπο για να ξαναπιαστεί ο στόχος: $${απαραίτητοΥπόλοιπο.toFixed(2)}</strong><br><br>
 
         <strong>Κέρδος πριν τις κρατήσεις: $${τελικόΚέρδος.toFixed(2)}</strong><br>
-        <strong>Κρατήσεις (5%): $${κρατήσεις.toFixed(2)}</strong><br>  // ΑΛΛΑΓΗ: 12% → 5%
+        <strong>Κρατήσεις (5%): $${κρατήσεις.toFixed(2)}</strong><br> 
         <strong>Καθαρό Κέρδος: $${καθαρόΚέρδος.toFixed(2)}</strong><br>
         <strong>Καθαρό ποσό μετά τις κρατήσεις: $${καθαρόΜετά.toFixed(2)}</strong><br><br>
 
@@ -297,7 +297,7 @@ function run10() {
 
         let w = parseFloat(document.getElementById("w" + i).value) || 0;
 
-        let net = w * 0.95 * usdcRate;  // ΑΛΛΑΓΗ: 0.88 → 0.95
+        let net = w * 0.95 * usdcRate; 
         document.getElementById("net" + i).innerText = net.toFixed(2);
 
         let r = result.amount - w;
