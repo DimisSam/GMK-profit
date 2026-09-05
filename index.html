@@ -182,12 +182,15 @@ function calculateProfitUntil(){
     for(let d=new Date(start); d<=end; d=new Date(d.getTime()+86400000)){
         const idx=d.getDay()===0?6:d.getDay()-1;
         const h=hits[idx];
-        if(h>0){
-            const factor=1+rate/100;
-            const newBal=balance*Math.pow(factor,h);
-            profitUSD+=newBal-balance;
-            balance=newBal;
-        }
+        if (dailyHits > 0) {
+    for (let i = 0; i < dailyHits; i++) {
+        const stake = balance * 0.01;              // 1% του υπολοίπου
+        const profit = stake * (profitRate / 100); // κέρδος πάνω στο stake
+        balance += profit;
+        totalProfitUSD += profit;
+    }
+}
+
         days++;
     }
 
