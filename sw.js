@@ -1,5 +1,4 @@
 const CACHE_NAME = 'GMK Profit Plan';
-
 const ASSETS = [
   './',
   './index.html',
