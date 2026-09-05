@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "fxo-profit-plan",
-  "compatibility_date": "2026-07-22",
+  "name": "gmk-profit-plan",
+  "compatibility_date": "2026-09-05",
   "observability": {
     "enabled": true
   },
