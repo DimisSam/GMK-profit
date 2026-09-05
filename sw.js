@@ -1,49 +1,20 @@
-const CACHE_NAME = 'gmk-profit-plan-v2';
+// Cloudflare-safe Service Worker
+// No precache, no stale cache, always fresh files
 
-const ASSETS = [
-  './',
-  './index.html',
-  './style.css',
-  './script.js',
-  './manifest.json',
-  './gmk_logo.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
-];
-
-// Install: cache all assets
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('Caching app assets...');
-      return cache.addAll(ASSETS);
-    })
-  );
+self.addEventListener("install", (event) => {
+  // Activate immediately
   self.skipWaiting();
 });
 
-// Activate: delete old caches
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      )
-    )
-  );
-  self.clients.claim();
+self.addEventListener("activate", (event) => {
+  // Take control immediately
+  event.waitUntil(self.clients.claim());
 });
 
-// Fetch: serve from cache, fallback to network
-self.addEventListener('fetch', event => {
+// Network-first fetch (fixes splash freeze)
+self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request).catch(() => {
-        // If both cache and network fail, return a simple offline page
-        if (event.request.destination === 'document') {
-          return caches.match('./index.html');
-        }
-      });
-    })
+    fetch(event.request)
+      .catch(() => caches.match(event.request))
   );
 });
